@@ -8,6 +8,7 @@ from openpyxl.styles import Alignment, Font, PatternFill
 def export_data_with_status(
     df: pd.DataFrame,
     matched_rows: set[int],
+    row_pages: dict[int, list[int]],
     output_file: str,
 ):
     """
@@ -16,12 +17,18 @@ def export_data_with_status(
     Adds:
         status = Matched
         status = Not found
+        page = matched PDF page number(s), or Not found
 
     Not found rows are highlighted yellow.
     """
 
     # Never modify the original DataFrame
     result_df = df.copy()
+
+    result_df["page"] = [
+        ", ".join(map(str, row_pages.get(row_index, []))) or "Not found"
+        for row_index in result_df.index
+    ]
 
     # -------------------------------------------------
     # Add status to EVERY row

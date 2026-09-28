@@ -90,6 +90,7 @@ def process_shipment(
     page_serials = {}
 
     matched_phones = set()
+    phone_pages = {}
 
     unmatched_pages = []
 
@@ -124,6 +125,7 @@ def process_shipment(
         page_serials[page_number] = serial
 
         matched_phones.add(normalized_phone)
+        phone_pages.setdefault(normalized_phone, []).append(page_number)
 
     # -------------------------------------------------
     # IMPORTANT:
@@ -132,6 +134,7 @@ def process_shipment(
 
     matched_rows = set()
     unmatched_rows = set()
+    row_pages = {}
 
     for index, row in df.iterrows():
 
@@ -140,8 +143,10 @@ def process_shipment(
         if phone in matched_phones:
 
             matched_rows.add(index)
+            row_pages[index] = phone_pages[phone]
         else:
             unmatched_rows.add(index)
+            row_pages[index] = []
 
     # -------------------------------------------------
     # Create Excel filename
@@ -160,6 +165,7 @@ def process_shipment(
     export_data_with_status(
         df=df,
         matched_rows=matched_rows,
+        row_pages=row_pages,
         output_file=str(excel_output),
     )
 
