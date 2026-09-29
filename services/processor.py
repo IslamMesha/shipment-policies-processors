@@ -32,6 +32,9 @@ def process_shipment(
         <data-name>-YYYY-MM-DD-HH-MM-SS-AM/PM.xlsx
 
         shipment-policy-YYYY-MM-DD-HH-MM-SS-AM/PM.pdf
+
+    The PDF is only created when at least one page matches a known phone
+    number. The Excel report is always created.
     """
 
     # -------------------------------------------------
@@ -171,25 +174,29 @@ def process_shipment(
         output_file=str(excel_output),
     )
 
-    # -------------------------------------------------
-    # Create PDF filename
-    # -------------------------------------------------
+    pdf_output = None
 
-    pdf_filename = f"shipment-policy-{timestamp}.pdf"
+    if page_serials:
 
-    pdf_output = output_dir / pdf_filename
+        # -------------------------------------------------
+        # Create PDF filename
+        # -------------------------------------------------
 
-    # -------------------------------------------------
-    # Write serial numbers to PDF
-    # -------------------------------------------------
+        pdf_filename = f"shipment-policy-{timestamp}.pdf"
 
-    write_serial_numbers(
-        input_pdf=policy_pdf,
-        output_pdf=str(pdf_output),
-        page_serials=page_serials,
-        serial_x=serial_x,
-        serial_y=serial_y,
-    )
+        pdf_output = output_dir / pdf_filename
+
+        # -------------------------------------------------
+        # Write serial numbers to PDF
+        # -------------------------------------------------
+
+        write_serial_numbers(
+            input_pdf=policy_pdf,
+            output_pdf=str(pdf_output),
+            page_serials=page_serials,
+            serial_x=serial_x,
+            serial_y=serial_y,
+        )
 
     # -------------------------------------------------
     # Return result
@@ -203,5 +210,5 @@ def process_shipment(
         "matched_rows": len(matched_rows),
         "unmatched_rows": len(unmatched_rows),
         "excel_file": str(excel_output),
-        "pdf_file": str(pdf_output),
+        "pdf_file": str(pdf_output) if pdf_output else None,
     }

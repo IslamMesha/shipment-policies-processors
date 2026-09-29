@@ -177,6 +177,12 @@ class MainWindow(QWidget):
                 serial_y=serial_y,
             )
 
+            pdf_message = (
+                f"PDF:\n{result['pdf_file']}"
+                if result["pdf_file"]
+                else "PDF:\nNot generated because no page matched a phone number."
+            )
+
             QMessageBox.information(
                 self,
                 "Processing Completed",
@@ -194,8 +200,7 @@ class MainWindow(QWidget):
                     f"{result['matched_pages']}\n\n"
                     f"Excel:\n"
                     f"{result['excel_file']}\n\n"
-                    f"PDF:\n"
-                    f"{result['pdf_file']}"
+                    f"{pdf_message}"
                 ),
             )
 
