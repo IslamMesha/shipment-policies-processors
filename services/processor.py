@@ -4,7 +4,7 @@ from pathlib import Path
 from services.data_reader import read_data_file
 from services.excel_exporter import export_data_with_status
 from services.pdf_reader import extract_pages, find_phone_number, normalize_phone
-from services.pdf_writer import write_serial_numbers
+from services.pdf_writer import SERIAL_X, SERIAL_Y, write_serial_numbers
 
 
 def create_timestamp() -> str:
@@ -21,6 +21,8 @@ def process_shipment(
     data_file: str,
     policy_pdf: str,
     output_directory: str,
+    serial_x: float = SERIAL_X,
+    serial_y: float = SERIAL_Y,
 ):
     """
     Complete shipment processing.
@@ -185,6 +187,8 @@ def process_shipment(
         input_pdf=policy_pdf,
         output_pdf=str(pdf_output),
         page_serials=page_serials,
+        serial_x=serial_x,
+        serial_y=serial_y,
     )
 
     # -------------------------------------------------

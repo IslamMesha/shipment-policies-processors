@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from services.pdf_writer import SERIAL_X, SERIAL_Y
 from services.processor import process_shipment
 
 
@@ -61,7 +62,7 @@ class MainWindow(QWidget):
 
         layout.addWidget(QLabel("Serial X position:"))
 
-        self.x_input = QLineEdit("150")
+        self.x_input = QLineEdit(str(SERIAL_X))
 
         layout.addWidget(self.x_input)
 
@@ -71,7 +72,7 @@ class MainWindow(QWidget):
 
         layout.addWidget(QLabel("Serial Y position:"))
 
-        self.y_input = QLineEdit("125")
+        self.y_input = QLineEdit(str(SERIAL_Y))
 
         layout.addWidget(self.y_input)
 
@@ -111,6 +112,20 @@ class MainWindow(QWidget):
 
             self.pdf_label.setText(f"Policy PDF: {Path(file_path).name}")
 
+    def read_serial_position(
+        self, field: QLineEdit, label: str, default: float
+    ) -> float:
+
+        value_text = field.text().strip()
+
+        if not value_text:
+            return default
+
+        try:
+            return float(value_text)
+        except ValueError as exc:
+            raise ValueError(f"{label} must be a valid number.") from exc
+
     def process(self):
 
         if not self.data_file:
@@ -143,10 +158,23 @@ class MainWindow(QWidget):
 
         try:
 
+            serial_x = self.read_serial_position(
+                self.x_input,
+                "Serial X position",
+                SERIAL_X,
+            )
+            serial_y = self.read_serial_position(
+                self.y_input,
+                "Serial Y position",
+                SERIAL_Y,
+            )
+
             result = process_shipment(
                 data_file=self.data_file,
                 policy_pdf=self.policy_pdf,
                 output_directory=output_directory,
+                serial_x=serial_x,
+                serial_y=serial_y,
             )
 
             QMessageBox.information(

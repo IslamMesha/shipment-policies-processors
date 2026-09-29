@@ -25,6 +25,8 @@ def create_text_overlay(
     page_width: float,
     page_height: float,
     text: str,
+    serial_x: float = SERIAL_X,
+    serial_y: float = SERIAL_Y,
 ):
     """
     Create a transparent PDF overlay containing
@@ -48,8 +50,8 @@ def create_text_overlay(
 
     # Center the serial number horizontally
     c.drawCentredString(
-        SERIAL_X,
-        SERIAL_Y,
+        serial_x,
+        serial_y,
         str(text),
     )
 
@@ -66,6 +68,8 @@ def write_serial_numbers(
     input_pdf: str,
     output_pdf: str,
     page_serials: dict[int, str],
+    serial_x: float = SERIAL_X,
+    serial_y: float = SERIAL_Y,
 ):
     """
     Write serial numbers onto matched PDF pages.
@@ -99,6 +103,8 @@ def write_serial_numbers(
                 page_width=page_width,
                 page_height=page_height,
                 text=serial,
+                serial_x=serial_x,
+                serial_y=serial_y,
             )
 
             page.merge_page(overlay)
