@@ -11,10 +11,10 @@ def create_timestamp() -> str:
     """
     Example:
 
-        2026-09-28-08-23-PM
+        2026-09-28-08-23-45-PM
     """
 
-    return datetime.now().strftime("%Y-%m-%d-%I-%M-%p")
+    return datetime.now().strftime("%Y-%m-%d-%I-%M-%S-%p")
 
 
 def process_shipment(
@@ -27,9 +27,9 @@ def process_shipment(
 
     Creates:
 
-        <data-name>-YYYY-MM-DD-HH-MM-AM/PM.xlsx
+        <data-name>-YYYY-MM-DD-HH-MM-SS-AM/PM.xlsx
 
-        shipment-policy-YYYY-MM-DD-HH-MM-AM/PM.pdf
+        shipment-policy-YYYY-MM-DD-HH-MM-SS-AM/PM.pdf
     """
 
     # -------------------------------------------------

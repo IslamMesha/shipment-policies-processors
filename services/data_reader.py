@@ -18,7 +18,7 @@ def _format_timestamp(value: str) -> str:
     if pd.isna(timestamp):
         return value
 
-    return timestamp.strftime("%Y-%m-%d %I:%M %p")
+    return timestamp.strftime("%Y-%m-%d %I:%M:%S %p")
 
 
 def read_data_file(file_path: str) -> pd.DataFrame:
