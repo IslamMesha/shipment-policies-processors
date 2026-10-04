@@ -8,6 +8,9 @@ from openpyxl.styles import Alignment, Font, PatternFill
 def export_data_with_status(
     df: pd.DataFrame,
     matched_rows: set[int],
+    wrong_cod_rows: set[int],
+    cod_column_name: str,
+    row_cod_amounts: dict[int, str],
     row_pages: dict[int, list[int]],
     output_file: str,
 ):
@@ -29,6 +32,10 @@ def export_data_with_status(
         ", ".join(map(str, row_pages.get(row_index, []))) or "Not found"
         for row_index in result_df.index
     ]
+    result_df["PDF CODS"] = [
+        row_cod_amounts.get(row_index, "")
+        for row_index in result_df.index
+    ]
 
     # -------------------------------------------------
     # Add status to EVERY row
@@ -39,6 +46,10 @@ def export_data_with_status(
     for row_index in matched_rows:
 
         result_df.loc[row_index, "status"] = "Matched"
+
+    for row_index in wrong_cod_rows:
+
+        result_df.loc[row_index, "status"] = "Wrong CODS"
 
     # -------------------------------------------------
     # Export the COMPLETE dataset
@@ -95,6 +106,14 @@ def export_data_with_status(
             for cell in worksheet[excel_row]:
 
                 cell.fill = yellow_fill
+
+    cod_column = next(
+        (cell.column for cell in worksheet[1] if cell.value == cod_column_name),
+        None,
+    )
+    if cod_column:
+        for row_index in wrong_cod_rows:
+            worksheet.cell(row=row_index + 2, column=cod_column).fill = yellow_fill
 
     # -------------------------------------------------
     # Find status column

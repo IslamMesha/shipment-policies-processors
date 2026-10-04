@@ -99,7 +99,7 @@ class MainWindow(QWidget):
             lambda checked: checked and self.set_serial_position(48.56, 40)
         )
         self.bosta_position.toggled.connect(
-            lambda checked: checked and self.set_serial_position(148.56, 125)
+            lambda checked: checked and self.set_serial_position(48.56, 125)
         )
         self.bosta_position.setChecked(True)
 

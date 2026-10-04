@@ -1,4 +1,6 @@
 import re
+from decimal import Decimal, InvalidOperation
+from unicodedata import category
 
 from pypdf import PdfReader
 
@@ -146,5 +148,75 @@ def find_phone_number(
 
         if normalized_phone in known_phones:
             return known_phones[normalized_phone]
+
+    return None
+
+
+def normalize_amount(value: str) -> Decimal | None:
+    """Parse an amount while tolerating Arabic digits and common separators."""
+    if value is None:
+        return None
+
+    text = str(value).translate(
+        str.maketrans(
+            "٠١٢٣٤٥٦٧٨٩٫٬",
+            "0123456789.,",
+        )
+    )
+    match = re.search(r"[-+]?\d[\d.,]*", text)
+    if not match:
+        return None
+
+    number = match.group()
+    if "," in number and "." in number:
+        decimal_separator = "," if number.rfind(",") > number.rfind(".") else "."
+        thousands_separator = "." if decimal_separator == "," else ","
+        number = number.replace(thousands_separator, "")
+        number = number.replace(decimal_separator, ".")
+    elif "," in number or "." in number:
+        separator = "," if "," in number else "."
+        parts = number.split(separator)
+        if len(parts) > 2:
+            number = "".join(parts)
+        elif len(parts[-1]) == 3:
+            number = "".join(parts)
+        else:
+            number = separator.join(parts[:-1]) + "." + parts[-1]
+
+    try:
+        return Decimal(number)
+    except InvalidOperation:
+        return None
+
+
+def _remove_formatting_characters(text: str) -> str:
+    return "".join(character for character in text if category(character) != "Cf")
+
+
+def extract_cod_amount(text: str) -> Decimal | None:
+    """Extract the amount following a J&T CODS or Bosta collection label."""
+    if not text:
+        return None
+
+    normalized_text = _remove_formatting_characters(text).translate(
+        str.maketrans(
+            "٠١٢٣٤٥٦٧٨٩٫٬",
+            "0123456789.,",
+        )
+    )
+    labels = re.finditer(
+        r"\bCODS?\b|مبلغ\s*التحصيل",
+        normalized_text,
+        flags=re.IGNORECASE,
+    )
+    for label in labels:
+        nearby_text = normalized_text[label.end() : label.end() + 120]
+        for amount_match in re.finditer(r"(?<!\d)\d[\d.,]*", nearby_text):
+            amount = normalize_amount(amount_match.group())
+            if (
+                amount is not None
+                and len(amount_match.group().replace(",", "").replace(".", "")) <= 9
+            ):
+                return amount
 
     return None
