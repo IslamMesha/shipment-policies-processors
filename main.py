@@ -3,11 +3,14 @@ from pathlib import Path
 
 from PySide6.QtWidgets import (
     QApplication,
+    QButtonGroup,
     QFileDialog,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
     QMessageBox,
     QPushButton,
+    QRadioButton,
     QVBoxLayout,
     QWidget,
 )
@@ -57,6 +60,22 @@ class MainWindow(QWidget):
         layout.addWidget(self.pdf_label)
 
         # ---------------------------------------------
+        # Serial position preset
+        # ---------------------------------------------
+
+        layout.addWidget(QLabel("Serial position preset:"))
+
+        position_layout = QHBoxLayout()
+        self.position_group = QButtonGroup(self)
+        self.bosta_position = QRadioButton("Bosta")
+        self.jt_position = QRadioButton("J&T")
+        self.position_group.addButton(self.bosta_position)
+        self.position_group.addButton(self.jt_position)
+        position_layout.addWidget(self.bosta_position)
+        position_layout.addWidget(self.jt_position)
+        layout.addLayout(position_layout)
+
+        # ---------------------------------------------
         # X position
         # ---------------------------------------------
 
@@ -76,6 +95,14 @@ class MainWindow(QWidget):
 
         layout.addWidget(self.y_input)
 
+        self.jt_position.toggled.connect(
+            lambda checked: checked and self.set_serial_position(48.56, 40)
+        )
+        self.bosta_position.toggled.connect(
+            lambda checked: checked and self.set_serial_position(148.56, 125)
+        )
+        self.bosta_position.setChecked(True)
+
         # ---------------------------------------------
         # Process
         # ---------------------------------------------
@@ -87,6 +114,10 @@ class MainWindow(QWidget):
         layout.addWidget(process_button)
 
         self.setLayout(layout)
+
+    def set_serial_position(self, serial_x: float, serial_y: float):
+        self.x_input.setText(str(serial_x))
+        self.y_input.setText(str(serial_y))
 
     def select_data_file(self):
 
