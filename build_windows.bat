@@ -12,7 +12,7 @@ if not exist "%PYTHON%" (
 "%PYTHON%" -m pip install -r requirements-build.txt
 if errorlevel 1 goto failure
 
-"%PYTHON%" -m PyInstaller --noconfirm --clean --onefile --windowed --name ShipmentPolicyProcessor main.py
+"%PYTHON%" -m PyInstaller --noconfirm --clean --onefile --windowed --name ShipmentPolicyProcessor --icon "assets\shipment_policy_processor.ico" --add-data "assets\shipment_policy_processor.ico;assets" main.py
 if errorlevel 1 goto failure
 
 echo.

@@ -8,7 +8,7 @@ executables from Ubuntu.
 3. Run `build_windows.bat` from File Explorer or Command Prompt.
 
 The script creates an isolated `.venv-build`, installs the application and
-PyInstaller dependencies, and produces:
+PyInstaller dependencies, bundles the app icon from `assets\shipment_policy_processor.ico`, and produces:
 
 ```text
 dist\ShipmentPolicyProcessor.exe

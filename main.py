@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QApplication,
     QButtonGroup,
@@ -18,6 +19,16 @@ from PySide6.QtWidgets import (
 from services.pdf_writer import SERIAL_X, SERIAL_Y
 from services.processor import process_shipment
 
+APP_DIR = Path(__file__).resolve().parent
+ICON_NAME = "shipment_policy_processor.ico"
+
+
+def get_app_icon_path() -> Path:
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        return Path(sys._MEIPASS) / "assets" / ICON_NAME
+
+    return APP_DIR / "assets" / ICON_NAME
+
 
 class MainWindow(QWidget):
 
@@ -25,6 +36,7 @@ class MainWindow(QWidget):
         super().__init__()
 
         self.setWindowTitle("Shipment Policy Processor")
+        self.setWindowIcon(QIcon(str(get_app_icon_path())))
 
         self.resize(600, 400)
 
@@ -247,6 +259,7 @@ class MainWindow(QWidget):
 if __name__ == "__main__":
 
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon(str(get_app_icon_path())))
 
     window = MainWindow()
 
