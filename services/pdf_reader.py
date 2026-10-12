@@ -190,33 +190,71 @@ def normalize_amount(value: str) -> Decimal | None:
 
 
 def _remove_formatting_characters(text: str) -> str:
-    return "".join(character for character in text if category(character) != "Cf")
+    """Remove Unicode formatting characters and PDF null bytes."""
+    return "".join(
+        character
+        for character in text
+        if category(character) != "Cf" and character != "\x00"
+    )
 
 
 def extract_cod_amount(text: str) -> Decimal | None:
-    """Extract the amount following a J&T CODS or Bosta collection label."""
+    """Extract the COD amount from J&T/Bosta PDF text."""
+
     if not text:
         return None
 
-    normalized_text = _remove_formatting_characters(text).translate(
+    # Clean PDF-extracted text.
+    text = _remove_formatting_characters(text)
+
+    text = text.translate(
         str.maketrans(
             "٠١٢٣٤٥٦٧٨٩٫٬",
             "0123456789.,",
         )
     )
-    labels = re.finditer(
-        r"\bCODS?\b|مبلغ\s*التحصيل",
-        normalized_text,
+
+    text = re.sub(r"\s+", " ", text).strip()
+
+    # First: look for a standalone Egyptian pound marker.
+    # Matches: "ج.م1,520"
+    # Rejects: "اج.م 100"
+    currency_pattern = re.compile(
+        r"(?<![\w])ج\s*\.\s*م\s*([+-]?\d[\d.,]*)",
         flags=re.IGNORECASE,
     )
-    for label in labels:
-        nearby_text = normalized_text[label.end() : label.end() + 120]
-        for amount_match in re.finditer(r"(?<!\d)\d[\d.,]*", nearby_text):
-            amount = normalize_amount(amount_match.group())
-            if (
-                amount is not None
-                and len(amount_match.group().replace(",", "").replace(".", "")) <= 9
-            ):
+
+    match = currency_pattern.search(text)
+
+    if match:
+        amount = normalize_amount(match.group(1))
+        if amount is not None:
+            return amount
+
+    # Fallback: look for explicit COD/collection labels.
+    label_pattern = re.compile(
+        r"\bCODS?\b|مبلغ\s*التحصيل",
+        flags=re.IGNORECASE,
+    )
+
+    for label in label_pattern.finditer(text):
+        nearby_text = text[label.end() : label.end() + 120]
+
+        # Prefer an amount associated with the currency marker.
+        match = currency_pattern.search(nearby_text)
+        if match:
+            amount = normalize_amount(match.group(1))
+            if amount is not None:
+                return amount
+
+        # Otherwise, try the number immediately after the label.
+        match = re.search(
+            r"[:：]?\s*([+-]?\d[\d.,]*)",
+            nearby_text,
+        )
+        if match:
+            amount = normalize_amount(match.group(1))
+            if amount is not None:
                 return amount
 
     return None
