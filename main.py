@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
 
 from services.pdf_writer import SERIAL_X, SERIAL_Y
 from services.processor import process_shipment
+from ui.license_dialog import ensure_license
 
 APP_DIR = Path(__file__).resolve().parent
 ICON_NAME = "shipment_policy_processor.ico"
@@ -260,6 +261,9 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(str(get_app_icon_path())))
+
+    if not ensure_license():
+        sys.exit(1)
 
     window = MainWindow()
 

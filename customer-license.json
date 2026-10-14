@@ -1,0 +1,10 @@
+{
+  "payload": {
+    "version": 1,
+    "license_id": "383bfd66-a00a-46f7-bfac-285d13022ada",
+    "customer": "Customer name",
+    "device_id": "89aaf08612221ece40f659987a133358d3d03bab0796e68a6071e97d6fc3f3fc",
+    "expires_on": "2027-10-16"
+  },
+  "signature": "U0iQRFN4GfwjtlsGUNndm/T1yqsaXOWESL9By05Q9/FnhguBywNght1wD1Fc7I6vh+gGHcLv0B7oYSmzoOUQCg=="
+}

@@ -80,6 +80,47 @@ dist\ShipmentPolicyProcessor.exe
 
 For more detail, see [BUILDING_WINDOWS.md](BUILDING_WINDOWS.md).
 
+## Licensing
+
+The application requires a vendor-signed license tied to the Windows
+computer. On first launch, copy the displayed machine ID and send it to the
+software provider. Select the license file they return. The app stores it in
+`%LOCALAPPDATA%\ShipmentPolicyProcessor\license.json`.
+
+Before distributing a licensed build, generate an Ed25519 key pair using the
+license administration tool. Keep the private key outside the project and
+securely backed up; never ship it with the app. Embed the printed base64 public
+key in `LICENSE_PUBLIC_KEY_B64` in `services/licensing.py`, then build and
+distribute the app. The issuing tool is not included in the PyInstaller app.
+
+```powershell
+py tools\license_admin.py generate-keys --private-key "C:\secure\shipment-policy-private.pem"
+```
+
+The tool prompts for a passphrase to encrypt the private key. Back up the
+private key and passphrase securely; losing them prevents issuing future
+licenses for builds that use the corresponding public key.
+
+Issue a machine-bound license using the machine ID provided by the customer.
+Omit `--expires-on` for a perpetual license, or provide a date in `YYYY-MM-DD`
+format:
+
+```powershell
+py tools\license_admin.py issue `
+  --private-key "C:\secure\shipment-policy-private.pem" `
+  --customer "Customer name" `
+  --device-id "CUSTOMER-MACHINE-ID" `
+  --expires-on 2027-10-14 `
+  --output ".\customer-license.json"
+```
+
+This offline check detects forged or altered license files, but it cannot make
+a client-side application crack-proof. A user with control of their computer
+can patch the executable or change the system clock to bypass local expiry.
+Machine binding is a deterrent, not foolproof hardware protection; reinstalling
+or changing the computer may require issuing a replacement license. Periodic
+online activation is needed for stronger expiry and revocation enforcement.
+
 ## Notes
 
 - The app expects the shipment data to contain phone-number and serial-number columns.

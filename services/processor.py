@@ -11,6 +11,7 @@ from services.pdf_reader import (
     normalize_phone,
 )
 from services.pdf_writer import SERIAL_X, SERIAL_Y, write_serial_numbers
+from services.licensing import validate_installed_license
 
 
 def create_timestamp() -> str:
@@ -82,6 +83,8 @@ def process_shipment(
     The PDF is only created when at least one page matches a known phone
     number. The Excel report is always created.
     """
+
+    validate_installed_license()
 
     # -------------------------------------------------
     # Timestamp
