@@ -15,6 +15,7 @@ It is designed for operations where a spreadsheet of customer shipment records m
 - Export a complete Excel report with matched, unmatched, and COD-mismatch status
 - Create a shipment policy PDF with serial numbers added in the correct positions
 - Built-in presets for Bosta and J&T serial placement
+- Display the license expiry date and remaining days in the main window
 
 ## Project structure
 
@@ -85,7 +86,9 @@ For more detail, see [BUILDING_WINDOWS.md](BUILDING_WINDOWS.md).
 The application requires a vendor-signed license tied to the Windows
 computer. On first launch, copy the displayed machine ID and send it to the
 software provider. Select the license file they return. The app stores it in
-`%LOCALAPPDATA%\ShipmentPolicyProcessor\license.json`.
+`%LOCALAPPDATA%\ShipmentPolicyProcessor\license.json`. The main window displays
+the license expiry date and the number of days remaining; perpetual licenses
+are shown as having no expiry date.
 
 Before distributing a licensed build, generate an Ed25519 key pair using the
 license administration tool. Keep the private key outside the project and

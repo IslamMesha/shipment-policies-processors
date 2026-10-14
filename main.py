@@ -1,6 +1,8 @@
 import sys
+from datetime import date
 from pathlib import Path
 
+from PySide6.QtCore import QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QApplication,
@@ -18,10 +20,30 @@ from PySide6.QtWidgets import (
 
 from services.pdf_writer import SERIAL_X, SERIAL_Y
 from services.processor import process_shipment
+from services.licensing import validate_installed_license
 from ui.license_dialog import ensure_license
 
 APP_DIR = Path(__file__).resolve().parent
 ICON_NAME = "shipment_policy_processor.ico"
+
+
+def format_license_status(
+    expires_on: date | None,
+    *,
+    today: date | None = None,
+) -> str:
+    if expires_on is None:
+        return "License expiry: Never | Days remaining: Unlimited"
+
+    days_remaining = (expires_on - (today or date.today())).days
+    if days_remaining < 0:
+        return f"License expired on {expires_on.isoformat()}"
+
+    day_label = "day" if days_remaining == 1 else "days"
+    return (
+        f"License expiry: {expires_on.isoformat()} | "
+        f"Days remaining: {days_remaining} {day_label}"
+    )
 
 
 def get_app_icon_path() -> Path:
@@ -43,8 +65,21 @@ class MainWindow(QWidget):
 
         self.data_file = None
         self.policy_pdf = None
+        license_payload = validate_installed_license()
+        expires_on = license_payload["expires_on"]
+        self.license_expiry_date = (
+            date.fromisoformat(expires_on) if expires_on is not None else None
+        )
 
         layout = QVBoxLayout()
+
+        self.license_status_label = QLabel()
+        layout.addWidget(self.license_status_label)
+        self.update_license_status()
+
+        self.license_status_timer = QTimer(self)
+        self.license_status_timer.timeout.connect(self.update_license_status)
+        self.license_status_timer.start(60_000)
 
         # ---------------------------------------------
         # Data file
@@ -127,6 +162,11 @@ class MainWindow(QWidget):
         layout.addWidget(process_button)
 
         self.setLayout(layout)
+
+    def update_license_status(self) -> None:
+        self.license_status_label.setText(
+            format_license_status(self.license_expiry_date)
+        )
 
     def set_serial_position(self, serial_x: float, serial_y: float):
         self.x_input.setText(str(serial_x))

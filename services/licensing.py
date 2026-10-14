@@ -10,7 +10,7 @@ from typing import Any
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
-LICENSE_PUBLIC_KEY_B64 = "jLPIp9j7ZSV36yAb5V1SBqDBgspe+AFK9rQ+p5zW/To="
+LICENSE_PUBLIC_KEY_B64 = "REPLACE_WITH_YOUR_BASE64_ED25519_PUBLIC_KEY"
 APP_NAME = "ShipmentPolicyProcessor"
 
 
